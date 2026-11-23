@@ -8,8 +8,11 @@ Hitsplats no estilo Old School RuneScape para WoW Forever (Interface 16001): o d
 
 ## Instalar
 
-Copie esta pasta para `World of Warcraft\_forever_\Interface\AddOns\RuneHits` (o nome da pasta tem que ser `RuneHits`;
-se baixou o zip, renomeie `RuneHits-main`).
+Baixe `RuneHits.zip` em [Releases](https://github.com/hberdu/RuneHits/releases/latest) e extraia dentro de
+`World of Warcraft\_forever_\Interface\AddOns`. Tem que ficar `AddOns\RuneHits\RuneHits.toc`.
+
+O "Download ZIP" do botão Code gera `RuneHits-main` (e o Windows às vezes cria `RuneHits-main\RuneHits-main`): o WoW
+não lista assim. Renomeie a pasta que tem o `.toc` para `RuneHits` e coloque direto em `AddOns`.
 
 ## Comandos
 
@@ -24,4 +27,4 @@ Tudo feito do zero, sem arquivos do jogo: `py make_runehits_art.py` desenha os s
 `py make_runehits_sounds.py` sintetiza os sons. Para trocar um som, coloque seu próprio `.ogg` em `sounds/` com o
 mesmo nome. Teste: `py test_runehits.py` (precisa de `pip install lupa`).
 
-Projeto de fã, sem ligação com a Jagex ou a Blizzard.
+Licença MIT (`LICENSE`). Projeto de fã, sem ligação com a Jagex ou a Blizzard.
