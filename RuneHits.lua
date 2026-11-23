@@ -4,7 +4,8 @@
 -- above your head for hits on you. Hits landing together pile up: the first, two over it, one on top; each stays
 -- LIFE seconds and is gone, no rising, no fading. A big number runs past the splat's edge, as in OSRS. Sounds only
 -- for what your own casts do: UNIT_COMBAT can't tell a DoT tick from a hit, so a hit on the target is heard only if
--- you cast something in the REACH seconds before (DoT ticks, pets and others hitting it stay silent).
+-- you cast something in the REACH seconds before (each wand shot counts as a cast), or once per TICK while you
+-- channel (Drain Life, Arcane Missiles, Blizzard). DoT ticks, pets and others hitting it stay silent.
 -- Art, digits and sounds: make_runehits_art.py and make_runehits_sounds.py (own work, no game files); any .ogg
 -- dropped in sounds/ with the same name plays instead. A secret amount goes whole to the font string.
 -- /rh on/off  ·  /rh teste  ·  /rh som  ·  /rh escala 1.2  ·  /rh altura 26  ·  /rh eu 90  ·  /rh blizz  ·  /rh debug
@@ -18,6 +19,7 @@ local SLOTS = {{0, 0}, {-12, 22}, {12, 22}, {0, 44}} -- art pixels: where hits l
 local ABOVE = 26                                   -- the first splat's center over the nameplate's top: just clear
 local ME = 90                                      -- hits on you, over the screen's middle: above your head
 local REACH = 1.5                                  -- seconds from your cast to its hit (bolts fly a while)
+local TICK = 0.9                                   -- a channel hits about once a second
 local LIFE = 1.2                                   -- two game ticks of OSRS
 local ART_OF = {hit = "red", crit = "max", miss = "blue"}
 local QUIET = 0.08                                 -- seconds between two sounds: an AoE doesn't turn into noise
@@ -48,7 +50,7 @@ local function newSplat()
     return s
 end
 
-local lastSound, cast = 0, -math.huge             -- cast: when you last cast something
+local lastSound, cast, channel = 0, -math.huge, false -- when you last cast something; whether you're channeling
 local function sound(event)
     local now = GetTime()
     if not event or DB.mute or now - lastSound < QUIET then return end
@@ -120,7 +122,8 @@ local function onCombat(unit, action, descriptor, amount)
     if unit ~= "player" and (unit ~= "target" or not UnitCanAttack("player", unit)) then return end
     if secret(action) then action = "WOUND" end
     if action == "HEAL" or action == "ENERGIZE" then return end -- OSRS has no splat for them
-    local loud = unit == "player" or GetTime() - cast <= REACH
+    local now = GetTime()
+    local loud = unit == "player" or now - cast <= REACH or channel and now - lastSound >= TICK
     if unit ~= "player" and loud then cast = -math.huge end -- one cast, one sound: the DoT it leaves stays quiet
     if action ~= "WOUND" or amount == nil or (not secret(amount) and type(amount) == "number" and amount <= 0) then
         return spawn(unit, "0", "miss", loud)      -- missed, dodged, parried, resisted, absorbed: a blue 0
@@ -146,10 +149,20 @@ local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("PLAYER_ENTERING_WORLD") -- the game can reapply its settings after login
 f:RegisterEvent("UNIT_COMBAT")
-f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player") -- your casts, wand shots included
+f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player") -- your casts, each wand shot included
+f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player")
+f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", "player")
 f:SetScript("OnEvent", function(_, event, ...)
     if event == "UNIT_COMBAT" then return onCombat(...) end
-    if event == "UNIT_SPELLCAST_SUCCEEDED" then cast = GetTime() return end
+    if event == "UNIT_SPELLCAST_SUCCEEDED" then
+        cast = GetTime()
+        if DB and DB.debug then print("RuneHits: cast (o próximo hit no alvo toca som)") end
+        return
+    end
+    if event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+        channel = event == "UNIT_SPELLCAST_CHANNEL_START"
+        return
+    end
     RuneHitsDB = RuneHitsDB or {on = true, hideBlizz = true}
     DB = RuneHitsDB
     if DB.on and DB.hideBlizz then blizzard(false) end

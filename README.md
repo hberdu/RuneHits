@@ -19,7 +19,7 @@ não lista assim. Renomeie a pasta que tem o `.toc` para `RuneHits` e coloque di
 `/rh` liga/desliga · `/rh teste` · `/rh som` · `/rh fonte 15` · `/rh escala 1.2` · `/rh altura 26` (distância acima
 da nameplate) · `/rh eu 90` · `/rh blizz` · `/rh debug`
 
-Precisa das nameplates de inimigos ligadas para o dano ficar acima do mob. Som só para o que seus casts acertam: tick de DoT, pet e outros jogadores não tocam som.
+Precisa das nameplates de inimigos ligadas para o dano ficar acima do mob. Som só para o que você acerta: magias, tiros de varinha e cada tick de canalizada (Drain Life, Arcane Missiles, Blizzard); tick de DoT, pet e outros jogadores não tocam som.
 
 ## Arte e sons
 

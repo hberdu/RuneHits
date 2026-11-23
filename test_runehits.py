@@ -103,6 +103,12 @@ NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)    -- the DoT it l
 NOW = NOW + 3; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)    -- a tick with no cast at all
 NOW = NOW + 1; cast(); NOW = NOW + 1.6; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)  -- a cast long gone
 assert(#SOUNDS == heard)
+ev("UNIT_SPELLCAST_CHANNEL_START", "player")                     -- Drain Life: each tick heard, a DoT between not
+for i = 1, 3 do NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 6, 1) end
+NOW = NOW + 0.3; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)
+assert(#SOUNDS == heard + 6); heard = #SOUNDS
+ev("UNIT_SPELLCAST_CHANNEL_STOP", "player"); NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)
+assert(#SOUNDS == heard)
 SlashCmdList.RUNEHITS("som"); NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)
 assert(#SOUNDS == heard); SlashCmdList.RUNEHITS("som")          -- muted
 SlashCmdList.RUNEHITS("fonte 12"); NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)
