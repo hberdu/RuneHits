@@ -55,28 +55,30 @@ local function at(s) local p = rawget(s, "_SetPoint"); return p[2], p[4], p[5] e
 ev("PLAYER_LOGIN")
 assert(CVAR.floatingCombatTextCombatDamage == "0" and CVAR.enableFloatingCombatText == "0")
 PLATES.target = PLATE
-ev("UNIT_COMBAT", "target", "WOUND", "", 120, 1)                -- a hit: red, on the mob's body under its plate
+local function cast() ev("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-1", 133) end
+cast()
+ev("UNIT_COMBAT", "target", "WOUND", "", 120, 1)                -- a hit: red, just over the mob's nameplate
 local a = SHOWN
 assert(art(a) == "red" and rawget(a.text, "text") == 120 and rawget(a.text, "_SetFont")[2] == 15)
 local region, x, y = at(a)
-assert(region == PLATE and x == 0 and y == -40, tostring(y))
-assert(SOUNDS[1] == "magic" and SOUNDS[2] == "goblin")             -- a hit: the spell and the goblin
-ev("UNIT_COMBAT", "target", "WOUND", "CRITICAL", 78, 1)          -- a crit: the gold rim, above the first
+assert(region == PLATE and rawget(a, "_SetPoint")[3] == "TOP" and x == 0 and y == 26, tostring(y))
+assert(SOUNDS[1] == "magic" and SOUNDS[2] == "goblin")             -- your cast's hit: the spell and the goblin
+ev("UNIT_COMBAT", "target", "WOUND", "CRITICAL", 78, 1)          -- a crit: the gold rim, over the first, left
 local b = SHOWN
-assert(art(b) == "max" and select(3, at(b)) == -40 + 44)
+assert(art(b) == "max" and select(2, at(b)) == -24 and select(3, at(b)) == 26 + 44)
 assert(#SOUNDS == 2)                                             -- same instant: one sound, not a wall of noise
-ev("UNIT_COMBAT", "target", "DODGE", "", 0, 1)                   -- a miss: blue 0, below left
+ev("UNIT_COMBAT", "target", "DODGE", "", 0, 1)                   -- a miss: blue 0, over the first, right
 local c = SHOWN
-assert(art(c) == "blue" and rawget(c.text, "text") == "0" and select(2, at(c)) == -24)
-ev("UNIT_COMBAT", "target", "WOUND", "", 0, 1)                   -- a hit for nothing: blue 0 too, below right
-assert(art(SHOWN) == "blue" and select(2, at(SHOWN)) == 24)
+assert(art(c) == "blue" and rawget(c.text, "text") == "0" and select(2, at(c)) == 24)
+ev("UNIT_COMBAT", "target", "WOUND", "", 0, 1)                   -- a hit for nothing: blue 0 too, on top
+assert(art(SHOWN) == "blue" and select(2, at(SHOWN)) == 0 and select(3, at(SHOWN)) == 26 + 88)
 NOW = NOW + 0.1
-ev("UNIT_COMBAT", "target", "WOUND", SECRET, SECRET, 1)          -- a fifth: takes the oldest's place, the center
+ev("UNIT_COMBAT", "target", "WOUND", SECRET, SECRET, 1)          -- a fifth: takes the oldest's place, the first
 local s = a                                                      -- the same frame, reused: no new one
-assert(#SPLATS == 4 and rawget(s.text, "text") == SECRET and art(s) == "red" and select(3, at(s)) == -40)
-ev("UNIT_COMBAT", "player", "WOUND", "", 30, 1)                 -- on you: screen middle, a bit low
+assert(#SPLATS == 4 and rawget(s.text, "text") == SECRET and art(s) == "red" and select(3, at(s)) == 26)
+ev("UNIT_COMBAT", "player", "WOUND", "", 30, 1)                 -- on you: over your head
 local region2, _, y2 = at(SHOWN)
-assert(region2 == UIParent and y2 == -20)
+assert(region2 == UIParent and y2 == 90)
 local n = #SPLATS
 ev("UNIT_COMBAT", "target", "HEAL", "", 50, 1)                  -- heals: nothing
 ENEMY.target = false; ev("UNIT_COMBAT", "target", "WOUND", "", 10, 1); ENEMY.target = true
@@ -90,16 +92,22 @@ local region3, _, y3 = at(SHOWN)
 assert(region3 == UIParent and y3 == 80 and #SPLATS == n)
 RuneHitsDB.scale = 2; PLATES.target = PLATE; NOW = NOW + 2; tick()
 ev("UNIT_COMBAT", "target", "WOUND", "", 5, 1)                   -- scaled: the offsets stay on screen
-assert(select(3, at(SHOWN)) == -20)
+assert(select(3, at(SHOWN)) == 13)
 NOW = NOW + 1; ev("UNIT_COMBAT", "player", "WOUND", "", 3, 1); assert(SOUNDS[#SOUNDS] == "sword")  -- hit on you: a sword
-NOW = NOW + 1; ev("UNIT_COMBAT", "target", "PARRY", "", 0, 1); assert(SOUNDS[#SOUNDS] == "splash")
-NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "CRITICAL", 9, 1); assert(SOUNDS[#SOUNDS] == "fire")
+NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target", "PARRY", "", 0, 1); assert(SOUNDS[#SOUNDS] == "splash")
+NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target", "WOUND", "CRITICAL", 9, 1); assert(SOUNDS[#SOUNDS] == "fire")
 local heard = #SOUNDS
-SlashCmdList.RUNEHITS("som"); NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)
+NOW = NOW + 1; cast(); NOW = NOW + 1.4; ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)  -- a bolt in flight: heard
+assert(#SOUNDS == heard + 2); heard = #SOUNDS
+NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)    -- the DoT it left ticking: a splat, no sound
+NOW = NOW + 3; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)    -- a tick with no cast at all
+NOW = NOW + 1; cast(); NOW = NOW + 1.6; ev("UNIT_COMBAT", "target", "WOUND", "", 4, 1)  -- a cast long gone
+assert(#SOUNDS == heard)
+SlashCmdList.RUNEHITS("som"); NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)
 assert(#SOUNDS == heard); SlashCmdList.RUNEHITS("som")          -- muted
 SlashCmdList.RUNEHITS("fonte 12"); NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)
 assert(rawget(SHOWN.text, "_SetFont")[2] == 12)
-SlashCmdList.RUNEHITS("corpo 60"); assert(RuneHitsDB.body == 60)
+SlashCmdList.RUNEHITS("altura 60"); assert(RuneHitsDB.above == 60)
 SlashCmdList.RUNEHITS("blizz"); assert(CVAR.floatingCombatTextCombatDamage == "1" and RuneHitsDB.saved == nil)
 SlashCmdList.RUNEHITS("debug"); ev("UNIT_COMBAT", "target", "WOUND", "", 8, 1); SlashCmdList.RUNEHITS("debug")
 SlashCmdList.RUNEHITS("teste")
