@@ -9,9 +9,10 @@
 -- Art, digits and sounds: make_runehits_art.py and make_runehits_sounds.py (own work, no game files); any .ogg
 -- dropped in sounds/ with the same name plays instead. A secret amount goes whole to the font string.
 -- /rh on/off  ·  /rh teste  ·  /rh som  ·  /rh escala 1.2  ·  /rh altura 26  ·  /rh eu 90  ·  /rh blizz  ·  /rh debug
-local ART = "Interface\\AddOns\\RuneHits\\art\\"
-local SOUND = "Interface\\AddOns\\RuneHits\\sounds\\"
-local FONT = "Interface\\AddOns\\RuneHits\\RuneHitsDigits.ttf"
+local HOME = "Interface\\AddOns\\" .. (...) .. "\\" -- its folder: RuneHits, or RuneHits-main from GitHub's zip
+local ART = HOME .. "art\\"
+local SOUND = HOME .. "sounds\\"
+local FONT = HOME .. "RuneHitsDigits.ttf"
 local PX = 2                                       -- screen pixels per art pixel
 local CELL = 32 * PX                               -- the splat's texture: a 32-pixel cell with the splat inside
 local TEXT = 15                                    -- the digits' size: 9-pixel digits 13.5 tall on a 46-tall splat

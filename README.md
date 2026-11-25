@@ -11,8 +11,9 @@ Hitsplats no estilo Old School RuneScape para WoW Forever (Interface 16001): o d
 Baixe `RuneHits.zip` em [Releases](https://github.com/hberdu/RuneHits/releases/latest) e extraia dentro de
 `World of Warcraft\_forever_\Interface\AddOns`. Tem que ficar `AddOns\RuneHits\RuneHits.toc`.
 
-O "Download ZIP" do botão Code gera `RuneHits-main` (e o Windows às vezes cria `RuneHits-main\RuneHits-main`): o WoW
-não lista assim. Renomeie a pasta que tem o `.toc` para `RuneHits` e coloque direto em `AddOns`.
+O "Download ZIP" do botão Code também serve: a pasta `RuneHits-main` funciona como está. Só confira que ela ficou
+direto em `AddOns` (o Windows às vezes cria `RuneHits-main\RuneHits-main`; nesse caso use a de dentro). Não deixe
+`RuneHits` e `RuneHits-main` juntas, senão os splats aparecem duas vezes.
 
 ## Comandos
 

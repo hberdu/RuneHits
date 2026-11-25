@@ -1,0 +1,6 @@
+## Interface: 16001
+## Title: RuneHits
+## Notes: Hitsplats no estilo Old School RuneScape, em cima do mob, com som: vermelho, azul 0 no miss, raios dourados no crítico. /rh
+## SavedVariables: RuneHitsDB
+
+RuneHits.lua

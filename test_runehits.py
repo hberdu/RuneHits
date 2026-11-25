@@ -113,6 +113,7 @@ SlashCmdList.RUNEHITS("som"); NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target",
 assert(#SOUNDS == heard); SlashCmdList.RUNEHITS("som")          -- muted
 SlashCmdList.RUNEHITS("fonte 12"); NOW = NOW + 1; ev("UNIT_COMBAT", "target", "WOUND", "", 9, 1)
 assert(rawget(SHOWN.text, "_SetFont")[2] == 12)
+assert(rawget(SHOWN.text, "_SetFont")[1] == "Interface\\AddOns\\RuneHits-main\\RuneHitsDigits.ttf")  -- files from its own folder
 SlashCmdList.RUNEHITS("altura 60"); assert(RuneHitsDB.above == 60)
 SlashCmdList.RUNEHITS("blizz"); assert(CVAR.floatingCombatTextCombatDamage == "1" and RuneHitsDB.saved == nil)
 SlashCmdList.RUNEHITS("debug"); ev("UNIT_COMBAT", "target", "WOUND", "", 8, 1); SlashCmdList.RUNEHITS("debug")
@@ -122,6 +123,7 @@ SlashCmdList.RUNEHITS("teste")
 lua = LuaRuntime()
 lua.execute(STUBS)
 load = lua.eval("function(src, name) return assert(loadstring(src, name)) end")
-load((DIR / "RuneHits.lua").read_text(encoding="utf-8"), "RuneHits.lua")("RuneHits", lua.table())
+assert (DIR / "RuneHits.toc").read_bytes() == (DIR / "RuneHits-main.toc").read_bytes()  # GitHub's zip folder: same toc
+load((DIR / "RuneHits.lua").read_text(encoding="utf-8"), "RuneHits.lua")("RuneHits-main", lua.table())
 lua.execute(SCENARIO)
 print("ok")
