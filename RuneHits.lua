@@ -1,6 +1,7 @@
 -- RuneHits: Old School RuneScape-style hitsplats for WoW Forever. A red blood splash for a hit, a blue one with 0 for
 -- a miss (or a hit that does nothing), a red one with gold-tipped rays for a crit (OSRS' "max hit"). They sit just
--- above the mob's nameplate (Forever won't let an addon measure a nameplate, but anchoring to one is allowed), and
+-- above the mob's nameplate, every mob an AoE hits and not just the target (Forever won't let an addon measure a
+-- nameplate, but anchoring to one is allowed), and
 -- above your head for hits on you. Hits landing together pile up: the first, two over it, one on top; each stays
 -- LIFE seconds and is gone, no rising, no fading. A big number runs past the splat's edge, as in OSRS. Sounds only
 -- for what your own casts do: UNIT_COMBAT can't tell a DoT tick from a hit, so a hit on the target is heard only if
@@ -120,7 +121,13 @@ local function onCombat(unit, action, descriptor, amount)
         print("RuneHits:", unit, action, secret(amount) and "(secreto)" or amount,
             unit ~= "player" and (C_NamePlate.GetNamePlateForUnit(unit) and "na nameplate" or "sem nameplate") or "")
     end
-    if unit ~= "player" and (unit ~= "target" or not UnitCanAttack("player", unit)) then return end
+    if unit ~= "player" then -- the target and, for AoE, every other mob with a nameplate (focus, mouseover: repeats)
+        if unit ~= "target" and not unit:find("^nameplate%d") or not UnitCanAttack("player", unit) then return end
+        -- the target's own nameplate brings the target's hit a second time
+        if unit ~= "target" and C_NamePlate.GetNamePlateForUnit(unit) == C_NamePlate.GetNamePlateForUnit("target") then
+            return
+        end
+    end
     if secret(action) then action = "WOUND" end
     if action == "HEAL" or action == "ENERGIZE" then return end -- OSRS has no splat for them
     local now = GetTime()

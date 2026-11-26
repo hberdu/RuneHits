@@ -93,6 +93,14 @@ assert(region3 == UIParent and y3 == 80 and #SPLATS == n)
 RuneHitsDB.scale = 2; PLATES.target = PLATE; NOW = NOW + 2; tick()
 ev("UNIT_COMBAT", "target", "WOUND", "", 5, 1)                   -- scaled: the offsets stay on screen
 assert(select(3, at(SHOWN)) == 13)
+local last, OTHER = SHOWN, mock()
+PLATES.nameplate1, ENEMY.nameplate1 = PLATE, true                -- the target's own nameplate: its hit again, skipped
+PLATES.nameplate2, ENEMY.nameplate2 = OTHER, true                -- another mob in the AoE
+PLATES.nameplate3, ENEMY.focus = mock(), true                    -- a friendly nameplate; focus repeats a nameplate
+ev("UNIT_COMBAT", "nameplate1", "WOUND", "", 7, 1); ev("UNIT_COMBAT", "nameplate3", "WOUND", "", 7, 1)
+ev("UNIT_COMBAT", "focus", "WOUND", "", 7, 1); assert(SHOWN == last)
+ev("UNIT_COMBAT", "nameplate2", "WOUND", "", 7, 1)               -- over its own nameplate, its own first slot
+assert(SHOWN ~= last and at(SHOWN) == OTHER and select(3, at(SHOWN)) == 13 and rawget(SHOWN.text, "text") == 7)
 NOW = NOW + 1; ev("UNIT_COMBAT", "player", "WOUND", "", 3, 1); assert(SOUNDS[#SOUNDS] == "sword")  -- hit on you: a sword
 NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target", "PARRY", "", 0, 1); assert(SOUNDS[#SOUNDS] == "splash")
 NOW = NOW + 1; cast(); ev("UNIT_COMBAT", "target", "WOUND", "CRITICAL", 9, 1); assert(SOUNDS[#SOUNDS] == "fire")

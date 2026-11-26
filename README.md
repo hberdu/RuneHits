@@ -1,6 +1,6 @@
 # RuneHits
 
-Hitsplats no estilo Old School RuneScape para WoW Forever (Interface 16001): o dano aparece logo acima da nameplate do mob, com som.
+Hitsplats no estilo Old School RuneScape para WoW Forever (Interface 16001): o dano aparece logo acima da nameplate do mob, com som. Dano em área aparece em cada mob atingido, não só no alvo.
 
 - vermelho: hit · azul com 0: miss · raios dourados: crítico
 - hits juntos se empilham para cima: o primeiro, dois acima dele, um no topo
